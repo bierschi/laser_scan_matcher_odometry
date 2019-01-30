@@ -77,10 +77,10 @@ LaserScanMatcherOdometry::~LaserScanMatcherOdometry() {
 void LaserScanMatcherOdometry::initParams() {
 
     if (!nh_private_.getParam ("base_frame", base_frame_))
-        base_frame_ = "base_link";
+        base_frame_ = "gps_imu_link";
 
     if (!nh_private_.getParam ("fixed_frame", fixed_frame_))
-        fixed_frame_ = "world";
+        fixed_frame_ = "odom";
 
     // **** input type - laser scan, or point clouds?
     // if false, will subscribe to LaserScan msgs on /scan.
@@ -134,7 +134,7 @@ void LaserScanMatcherOdometry::initParams() {
     // Maximum angular displacement between scans
 
     if (!nh_private_.getParam ("max_angular_correction_deg", input_.max_angular_correction_deg))
-        input_.max_angular_correction_deg = 45.0;
+        input_.max_angular_correction_deg = 15.0; //45
 
     // Maximum translation between scans (m)
     if (!nh_private_.getParam ("max_linear_correction", input_.max_linear_correction))
@@ -142,7 +142,7 @@ void LaserScanMatcherOdometry::initParams() {
 
     // Maximum ICP cycle iterations
     if (!nh_private_.getParam ("max_iterations", input_.max_iterations))
-        input_.max_iterations = 10;
+        input_.max_iterations = 20; //10
 
     // A threshold for stopping (m)
     if (!nh_private_.getParam ("epsilon_xy", input_.epsilon_xy))
@@ -154,7 +154,7 @@ void LaserScanMatcherOdometry::initParams() {
 
     // Maximum distance for a correspondence to be valid
     if (!nh_private_.getParam ("max_correspondence_dist", input_.max_correspondence_dist))
-        input_.max_correspondence_dist = 0.3;
+        input_.max_correspondence_dist = 0.6; //0.3
 
     // Noise in the scan (m)
     if (!nh_private_.getParam ("sigma", input_.sigma))
@@ -476,16 +476,33 @@ printf("%f, %f, %f\n", input_.first_guess[0],
             odom.pose.pose.position.y = w2b_.getOrigin().getY();
             odom.pose.pose.position.z = 0.0;
 
-            odom.pose.pose.orientation.x = 0;
-            odom.pose.pose.orientation.y = 0;
-            odom.pose.pose.orientation.z = 0;
-            odom.pose.pose.orientation.w = 1;
+            tf::Quaternion q_rot;
+            q_rot = w2b_.getRotation();
+            odom.pose.pose.orientation.x = q_rot.getX();
+            odom.pose.pose.orientation.y = q_rot.getY();
+            odom.pose.pose.orientation.z = q_rot.getZ();
+            odom.pose.pose.orientation.w = q_rot.getW();
+
+            odom.pose.covariance[0]  = 0.001;
+            odom.pose.covariance[7]  = 0.001;
+            odom.pose.covariance[14] = 99999;
+            odom.pose.covariance[21] = 99999;
+            odom.pose.covariance[28] = 99999;
+            odom.pose.covariance[35] = 0.001;
 
             odom.child_frame_id = base_frame_;
             odom.twist.twist.linear.x = vel_x_;
             odom.twist.twist.linear.y = vel_y_;
             odom.twist.twist.angular.z = vel_a_;
 
+            odom.twist.covariance[0]  = 0.001;
+            odom.twist.covariance[7]  = 0.001;
+            odom.twist.covariance[14] = 99999;
+            odom.twist.covariance[21] = 99999;
+            odom.twist.covariance[28] = 99999;
+            odom.twist.covariance[35] = 0.001;
+
+            //std::cout << w2b_.getRotation() << std::endl;
             lsm_odom_publisher_.publish(odom);
         }
     }
