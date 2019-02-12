@@ -219,25 +219,25 @@ catkin_package(
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR/build}")
 
 # Create library
-#add_library(laser_scan_matcher_odometry src/laser_scan_matcher_odometry.cpp)
+add_library(laser_scan_matcher_odometry src/laser_scan_matcher_odometry.cpp)
 
 #Note we don't link against pcl as we're using header-only parts of the library
-#target_link_libraries(laser_scan_matcher_odometry ${catkin_LIBRARIES} ${cms_LIBRARIES})
-#add_dependencies(laser_scan_matcher_odometry ${csm_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-# Create Node
-#add_executable(laser_scan_matcher_odometry_node src/laser_scan_matcher_odometry_node.cpp)
-#target_link_libraries(laser_scan_matcher_odometry_node laser_scan_matcher_odometry)
-
+target_link_libraries(laser_scan_matcher_odometry ${catkin_LIBRARIES} ${cms_LIBRARIES})
+add_dependencies(laser_scan_matcher_odometry ${csm_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 
 #include_directories(include/laser_scan_matcher_odometry)
 file(GLOB LSM_ODOMETRY_SRCS ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp)
 
-#Note we don't link against pcl as we're using header-only parts of the library
+# create node
 add_executable(laser_scan_matcher_odometry_node "src/laser_scan_matcher_odometry_node.cpp" ${LSM_ODOMETRY_SRCS})
 target_link_libraries(laser_scan_matcher_odometry_node ${catkin_LIBRARIES} ${csm_LIBRARIES})
 #add_dependencies(laser_scan_matcher_odometry ${csm_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-#install(TARGETS laser_scan_matcher_odometry_node
-#        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+# install library includes
+install(DIRECTORY include/laser_scan_matcher_odometry/
+        DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
+# install node
+install(TARGETS laser_scan_matcher_odometry_node
+        RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

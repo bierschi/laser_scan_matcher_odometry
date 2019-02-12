@@ -28,14 +28,6 @@
 class LaserScanMatcherOdometry {
 
 private:
-    const std::string scan_topic_ = "scan";
-    const std::string cloud_topic_= "cloud";
-    const std::string imu_topic_  = "imu/data";
-
-    // outputs
-    const std::string pose_topic_     = "pose2D";
-    const std::string odom_sub_topic_ = "odom";
-    const std::string odom_pub_topic_ = "lsm_odom";
 
     typedef pcl::PointXYZ           PointT;
     typedef pcl::PointCloud<PointT> PointCloudT;

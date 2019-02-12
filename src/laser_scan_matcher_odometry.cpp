@@ -36,34 +36,34 @@ LaserScanMatcherOdometry::LaserScanMatcherOdometry(ros::NodeHandle nh, ros::Node
     // subscribers
     if (use_cloud_input_)
     {
-        cloud_subscriber_ = nh_.subscribe(cloud_topic_, 1, &LaserScanMatcherOdometry::cloudCallback, this);
+        cloud_subscriber_ = nh_.subscribe("cloud", 1, &LaserScanMatcherOdometry::cloudCallback, this);
 
     }
     else
     {
 
-        scan_subscriber_ = nh_.subscribe(scan_topic_, 1, &LaserScanMatcherOdometry::scanCallback, this);
+        scan_subscriber_ = nh_.subscribe("scan", 1, &LaserScanMatcherOdometry::scanCallback, this);
     }
 
     if (use_imu_)
     {
-        imu_subscriber_ = nh_.subscribe(imu_topic_, 1, &LaserScanMatcherOdometry::imuCallback, this);
+        imu_subscriber_ = nh_.subscribe("imu/data", 1, &LaserScanMatcherOdometry::imuCallback, this);
     }
 
     if (use_odom_)
     {
-        odom_subscriber_ = nh_.subscribe(odom_sub_topic_, 1, &LaserScanMatcherOdometry::odomCallback, this);
+        odom_subscriber_ = nh_.subscribe("odom", 1, &LaserScanMatcherOdometry::odomCallback, this);
     }
 
     // publisher
     if (publish_pose_)
     {
-        pose_publisher_  = nh_.advertise<geometry_msgs::Pose2D>(pose_topic_, 5);
+        pose_publisher_  = nh_.advertise<geometry_msgs::Pose2D>("pose2D", 5);
     }
 
     if (publish_lsm_odom)
     {
-        lsm_odom_publisher_= nh_.advertise<nav_msgs::Odometry>(odom_pub_topic_, 100);
+        lsm_odom_publisher_= nh_.advertise<nav_msgs::Odometry>("lsm_odom", 100);
     }
 
 }
@@ -77,10 +77,10 @@ LaserScanMatcherOdometry::~LaserScanMatcherOdometry() {
 void LaserScanMatcherOdometry::initParams() {
 
     if (!nh_private_.getParam ("base_frame", base_frame_))
-        base_frame_ = "gps_imu_link";
+        base_frame_ = "base_link";
 
     if (!nh_private_.getParam ("fixed_frame", fixed_frame_))
-        fixed_frame_ = "odom";
+        fixed_frame_ = "world";
 
     // **** input type - laser scan, or point clouds?
     // if false, will subscribe to LaserScan msgs on /scan.
@@ -96,8 +96,8 @@ void LaserScanMatcherOdometry::initParams() {
         if (!nh_private_.getParam ("cloud_range_max", cloud_range_max_))
             cloud_range_max_ = 50.0;
 
-        //input_.min_reading = cloud_range_min_;
-        //input_.max_reading = cloud_range_max_;
+        input_.min_reading = cloud_range_min_;
+        input_.max_reading = cloud_range_max_;
     }
 
     // **** What predictions are available to speed up the ICP?
@@ -107,9 +107,9 @@ void LaserScanMatcherOdometry::initParams() {
     // If more than one is enabled, priority is imu > odom > alpha_beta
 
     if (!nh_private_.getParam ("use_imu", use_imu_))
-        use_imu_ = false;
+        use_imu_ = true;
     if (!nh_private_.getParam ("use_odom", use_odom_))
-        use_odom_ = false;
+        use_odom_ = true;
     if (!nh_private_.getParam ("use_alpha_beta", use_alpha_beta_))
         use_alpha_beta_ = true;
     if (!nh_private_.getParam ("publish_vel", publish_lsm_odom))
@@ -134,7 +134,7 @@ void LaserScanMatcherOdometry::initParams() {
     // Maximum angular displacement between scans
 
     if (!nh_private_.getParam ("max_angular_correction_deg", input_.max_angular_correction_deg))
-        input_.max_angular_correction_deg = 15.0; //45
+        input_.max_angular_correction_deg = 45.0;
 
     // Maximum translation between scans (m)
     if (!nh_private_.getParam ("max_linear_correction", input_.max_linear_correction))
@@ -142,7 +142,7 @@ void LaserScanMatcherOdometry::initParams() {
 
     // Maximum ICP cycle iterations
     if (!nh_private_.getParam ("max_iterations", input_.max_iterations))
-        input_.max_iterations = 20; //10
+        input_.max_iterations = 10;
 
     // A threshold for stopping (m)
     if (!nh_private_.getParam ("epsilon_xy", input_.epsilon_xy))
@@ -154,7 +154,7 @@ void LaserScanMatcherOdometry::initParams() {
 
     // Maximum distance for a correspondence to be valid
     if (!nh_private_.getParam ("max_correspondence_dist", input_.max_correspondence_dist))
-        input_.max_correspondence_dist = 0.6; //0.3
+        input_.max_correspondence_dist = 0.3;
 
     // Noise in the scan (m)
     if (!nh_private_.getParam ("sigma", input_.sigma))
