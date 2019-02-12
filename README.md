@@ -8,32 +8,28 @@ Laser_scan_matcher offers an additional topic named **lsm_odom** to output ROS o
 
 First, create a catkin_workspace:
 
-<code>
+<pre><code>
 mkdir -p ~/catkin_ws/src
-
 cd ~/catkin_ws/
-
 catkin_make
-</code>
+</pre></code>
 
 clone this repository:<br>
 
-<code>
+<pre><code>
 cd ~/catkin_ws/src
-
 git clone https://github.com/bierschi/laser_scan_matcher_odometry.git
-</code>
+</pre></code>
 
 build with catkin_make:<br>
 
-<code>
+<pre><code>
 cd ~/catkin_ws/
-
 catkin_make
-</code>
+</pre></code>
 
 and finally run the example.launch file
 
-<code>
+<pre><code>
 roslaunch laser_scan_matcher_odometry example.launch
-</code>
+</pre></code>
