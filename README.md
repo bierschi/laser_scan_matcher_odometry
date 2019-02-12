@@ -14,14 +14,14 @@ cd ~/catkin_ws/
 catkin_make
 </pre></code>
 
-clone this repository:<br>
+clone this repository:
 
 <pre><code>
 cd ~/catkin_ws/src
 git clone https://github.com/bierschi/laser_scan_matcher_odometry.git
 </pre></code>
 
-build with catkin_make:<br>
+build with catkin_make:
 
 <pre><code>
 cd ~/catkin_ws/
@@ -31,5 +31,6 @@ catkin_make
 and finally run the example.launch file
 
 <pre><code>
+source devel/setup.bash
 roslaunch laser_scan_matcher_odometry example.launch
 </pre></code>
