@@ -1,0 +1,28 @@
+<launch>
+
+  <param name="/use_sim_time" value="true"/>
+
+  <arg name="use_rviz" default="true" />
+
+  <group if="$(arg use_rviz)">
+    <node pkg="rviz" type="rviz" name="rviz"
+          args="-d $(find laser_scan_matcher_odometry)/rviz/config.rviz"/>
+  </group>
+
+  <node pkg="rosbag" type="play" name="play"
+        args="$(find laser_scan_matcher_odometry)/launch/demo.bag --delay=5 --clock"/>
+
+  #### publish an example base_link -> laser transform ###########
+
+  <node pkg="tf" type="static_transform_publisher" name="base_link_to_laser"
+    args="0.0 0.0 0.0 0.0 0.0 0.0 /base_link /laser 40" />
+
+  #### start the laser_scan_matcher_odometry package ##############################
+
+  <node pkg="laser_scan_matcher_odometry" type="laser_scan_matcher_odometry_node"
+    name="laser_scan_matcher_odometry_node" output="screen">
+
+    <param name="max_iterations" value="10"/>
+  </node>
+
+</launch>
